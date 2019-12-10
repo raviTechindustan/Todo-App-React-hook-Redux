@@ -1,0 +1,48 @@
+body {
+  margin: 0 auto;
+}
+.top-class {
+  border:1px blue solid;
+  background-color: #03a9f4;
+  border-radius: 15px;
+  margin: 10px 100px 0px 100px;
+}
+.second-div {
+  color:blue;
+  font-size:30px;
+  background-color: white;
+  height: 500px;
+  margin:5px;
+  border-radius: 15px;
+}
+.welcome {
+  color:blue;
+  font-size:30px;
+  padding-top:120px;
+  text-align: center;
+  font-weight: bold;
+}
+.form-control {
+  width: 286px !important;
+}
+.text1 {
+  margin-top:20px ;
+}
+.input-group-prepend{
+  margin-top:20px !important;
+}
+.forgot-password {
+  margin-top:30px;
+}
+.remember {
+  font-size: 14px;
+  margin-left: 5px;
+  color:#00000070;
+}
+.forgot {
+    margin-top:100px;
+    color:blue;
+    font-size:15px;
+    margin-left: 20px;
+    text-decoration: underline;
+}
