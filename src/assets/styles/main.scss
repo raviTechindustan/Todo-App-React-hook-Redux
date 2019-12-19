@@ -1,48 +1,81 @@
 body {
   margin: 0 auto;
 }
-.top-class {
-  border:1px blue solid;
-  background-color: #03a9f4;
-  border-radius: 15px;
-  margin: 10px 100px 0px 100px;
+.first-side {
+  border:1px solid black;
+  height: 800px;
 }
-.second-div {
-  color:blue;
-  font-size:30px;
-  background-color: white;
-  height: 500px;
-  margin:5px;
-  border-radius: 15px;
+.second-side {
+  border:1px solid red;
+  height: 800px;
 }
-.welcome {
-  color:blue;
-  font-size:30px;
-  padding-top:120px;
+.btncls {
+  float: left;
   text-align: center;
-  font-weight: bold;
+
 }
-.form-control {
-  width: 286px !important;
+.editor {
+  clear: both;
 }
-.text1 {
-  margin-top:20px ;
+.functionbtn {
+  width: 100px !important;
+  margin: 10px 5px 5px 5px;
 }
-.input-group-prepend{
-  margin-top:20px !important;
+.title {
+  float: left !important;
+   clear:"both" !important
 }
-.forgot-password {
-  margin-top:30px;
+.btngroup {
+  float: right !important;
 }
-.remember {
-  font-size: 14px;
-  margin-left: 5px;
-  color:#00000070;
+
+.todo-item {
+  cursor: pointer;
+  .title {
+    h5 {
+      font-size: 18px;
+    }
+  }
+  .sub-title {
+    font-size: 10px;
+    font-weight: bold;
+  }
 }
-.forgot {
-    margin-top:100px;
-    color:blue;
-    font-size:15px;
-    margin-left: 20px;
-    text-decoration: underline;
+.editor {
+  box-sizing: border-box;
+  border: 1px solid #ddd;
+  cursor: text;
+  padding: 16px;
+  border-radius: 2px;
+  margin-bottom: 2em;
+  box-shadow: inset 0px 1px 8px -3px #ABABAB;
+  background: #fefefe;
+}
+
+.editor :global(.public-DraftEditor-content) {
+  min-height: 140px;
+}
+
+.headlineButtonWrapper {
+  display: inline-block;
+}
+
+.headlineButton {
+  background: #fbfbfb;
+  color: #888;
+  font-size: 18px;
+  border: 0;
+  padding-top: 5px;
+  vertical-align: bottom;
+  height: 34px;
+  width: 36px;
+}
+
+.headlineButton:hover,
+.headlineButton:focus {
+  background: #f3f3f3;
+}
+
+.toolbar-btn {
+  display: flex;
 }
