@@ -9,7 +9,7 @@ import TextEditor from '../Common/TextEditor'
 import { EditorState } from 'draft-js';
 
 function getTodoToDisplay(state) {
-  const todos = state.todoReducer.todos;
+  const todos = state.todoReducer.todos || [];
   const reversedTodos = todos.reverse()
   return {
     todos,
@@ -212,7 +212,7 @@ function TodoItem({ isActive, onSelectTodo, todo, onDelete }) {
    <div className={`list-group-item list-group-item-action todo-item p-2` + ' ' + active} onClick={() => onSelectTodo(todo.id)}>
       <Row>
         <Col xs={12} sm={12} md={12} lg={12} className="title">
-          <h5>{todo.title}</h5>
+          <h5>{renderText(todo.title)}</h5>
         </Col>
         <Col xs={12} sm={12} md={12} lg={12}>
           <Row>
@@ -225,4 +225,11 @@ function TodoItem({ isActive, onSelectTodo, todo, onDelete }) {
       </Row>
     </div>
   )
+}
+
+function renderText(text, length = 30) {
+  if(text.length > length) {
+    return text.substring(0, 30) + '...';
+  }
+  return text
 }

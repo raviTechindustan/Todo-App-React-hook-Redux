@@ -3,5 +3,9 @@ export function saveToLocalStorage(data) {
 }
 
 export function getFromLocalStorage() {
-  return JSON.parse(localStorage.getItem("todos"));
+  let data = {};
+  if(localStorage.getItem("todos") !== null) {
+    data = JSON.parse(localStorage.getItem("todos"));
+  }
+  return data;
 }

@@ -8,7 +8,7 @@ const initialState = {
 export default function (state = { ...initialState }, action) {
   switch (action.type) {
     case 'NEW_TODO_CREATED': {
-      const newTodos = [...state.todos];
+      const newTodos = [...state.todos || []];
       newTodos.push(action.todo);
       saveToLocalStorage({ ...state, todos: newTodos });
       return { ...state, todos: newTodos }
