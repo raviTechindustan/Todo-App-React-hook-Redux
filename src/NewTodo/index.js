@@ -1,36 +1,47 @@
 import React, { useState } from 'react';
-import { Container, Row, Col, Button, Form } from 'react-bootstrap';
+import { Container, Row, Col, Button, Form ,Modal} from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux'
-import { pushData } from '../redux/actions/add'
+import { createTodo, updateTodo, deleteTodo } from '../redux/actions'
 import moment from 'moment';
 import { stateToHTML } from 'draft-js-export-html';
 import { stateFromHTML } from 'draft-js-import-html';
 import TextEditor from '../Common/TextEditor'
 import { EditorState } from 'draft-js';
-let searchTimeout = null;
+
+function getTodoToDisplay(state) {
+  const todos = state.todoReducer.todos;
+  const reversedTodos = todos.reverse()
+  return {
+    todos,
+    reversedTodos
+  }
+}
 
 function ToDo() {
+  const { todos, reversedTodos } = useSelector(getTodoToDisplay);
 
-  const counter = useSelector(state => state.add);
-  const { todos = [] } = counter
   const dispatch = useDispatch()
   const [active, setActive] = useState(null)
   const [editorState, setEditorState] = React.useState(EditorState.createEmpty());
-  const [data, setData] = useState();
   const [editable, setEditable] = useState(false);
+  const [todo, setTodo] = useState({});
+  const [show, setShowAlreadyEdited] = useState(false);
 
-  function saveEditorContent(editorState) {
-    const HTMLdata = stateToHTML(editorState.getCurrentContent());
-    setData({
-      ...data,
-      description: HTMLdata
+  const handleClose = () => setShowAlreadyEdited(false);
+  const handleShow = () => setShowAlreadyEdited(true);
+
+  function saveEditorContent(editorState) {    
+    setTodo({
+      ...todo,
+      description: editorState
     })
-    // const rowData = stateFromHTML(data);
   }
 
   function onChange(editorState) {
     setEditorState(editorState);
-    searchTimeout = debounce(() => saveEditorContent(editorState), 1000, searchTimeout);
+
+    const HTMLdata = stateToHTML(editorState.getCurrentContent());
+    saveEditorContent(HTMLdata)
   }
 
   function debounce(func, delay, intervalId) {
@@ -43,38 +54,47 @@ function ToDo() {
   function titleChange(e) {
     const { name, value } = e.target;
 
-    const updatedData = {
-      ...data,
+    const updatedTodo = {
+      ...todo,
       [name]: value,
     }
-    setData(updatedData);
+    setTodo(updatedTodo);
+  }
+
+  function onDelete(id) {
+    dispatch(deleteTodo(id))
   }
 
   function addTodo() {
-    if(data && data.id) {
-      alert("A todo is already being edited");
-      return
+     if (editable) {
+       setShowAlreadyEdited(true);
     }
-    const todo = {
+    const newTodo = {
       id: moment().valueOf(),
       created: moment().valueOf(),
       updated: null,
       title: '',
-      description: ''
+      description: '',
+      isNotSaved: true
     }
-    setData(todo);
-    setEditable(true)
-    // dispatch(createTodo(todo))
-
+    setTodo(newTodo);
+    setEditorState(EditorState.createEmpty())
+    setEditable(true);
   }
 
   function onSave() {
-    if (data && !data.id) {
-      // dispatch(createTodo());
-    } else {
-      // dispatch(updateTodo());
+    if(todo && !todo.title) {
+      alert("title is required")
+      return
     }
-    // setData({});
+    if (todo && !!todo.isNotSaved) {
+      const { isNotSaved, ...restTodo } = todo;
+      setActive(todo.id);
+      setTodo(restTodo)
+      dispatch(createTodo(restTodo));
+    } else {
+      dispatch(updateTodo(todo));
+    }
     setEditable(false)
   }
 
@@ -86,7 +106,18 @@ function ToDo() {
     setEditable(true)
   }
 
+  function onSelectTodo(todoId) {
+    if (todoId == active) {
+      return
+    }
 
+    setActive(todoId);
+    const selectedtodo = todos.find(todo => todo.id == todoId) || {};
+    setTodo(selectedtodo);
+    const rowData = stateFromHTML(selectedtodo.description);
+    const editorState = EditorState.createWithContent(rowData)
+    setEditorState(editorState);
+  }
 
   return (
     <Container fluid>
@@ -103,16 +134,32 @@ function ToDo() {
                     size="sm"
                   />
                   <Button variant="outline-primary" size="sm" onClick={addTodo}>Add</Button>
+                  {show ? <div>
+                  
+
+                  <Modal show={show} onHide={handleClose}>
+                    <Modal.Header closeButton>
+                        <Modal.Title><b><p>A Todo is Already Being Edited</p></b></Modal.Title>
+                    </Modal.Header>
+                   
+                    <Modal.Footer>
+                      <Button variant="secondary" onClick={handleClose}>
+                        Close
+                  </Button>
+                      
+                    </Modal.Footer>
+                  </Modal> </div> : null }
                 </Col>
                 <Col xs={12} sm={12} md={12} lg={12}>
                   <div className="list-group">
                     {
-                      todos.map((item, index) => <TodoItem
-                        isActive={index == active}
-                        setActive={setActive}
+                      reversedTodos.map((todo, index) => <TodoItem
+                        isActive={todo.id == active}
+                        onSelectTodo={onSelectTodo}
                         index={index}
                         key={index}
-                        item={item}
+                        onDelete={onDelete}
+                        todo={todo}
                       />
                       )
                     }
@@ -121,7 +168,7 @@ function ToDo() {
               </Row>
             </Col>
             <Col xs={12} sm={8} md={9} lg={9}>
-              {data && data.id ? <Row>
+              {todo && todo.id ? <Row>
                 <Col xs={12} sm={12} md={12} lg={12} className="py-3 d-flex">
                   <Form.Control
                     name="todo-title"
@@ -129,13 +176,12 @@ function ToDo() {
                     className="mr-2"
                     onChange={e => titleChange(e)}
                     name="title"
-                    required
                     size="sm"
+                    value={todo.title}
                     disabled={!editable}
-                    onDoubleClick={console.log}
                   />
                   {editable ? <Button className="mr-2" variant="outline-success" size="sm" onClick={onSave}>Save</Button>
-                  : <Button className="mr-2" variant="outline-success" size="sm" onClick={onEdit}>Edit</Button>}
+                    : <Button className="mr-2" variant="outline-success" size="sm" onClick={onEdit}>Edit</Button>}
                   {editable ? <Button variant="outline-danger" size="sm" onClick={onCancel}>Cancel</Button> : ''}
                 </Col>
                 <Col xs={12} sm={12} md={12} lg={12}>
@@ -143,6 +189,7 @@ function ToDo() {
                     onChange={onChange}
                     editorState={editorState}
                     setEditorState={setEditorState}
+                    readOnly={!editable}
                   />
                 </Col>
               </Row> : <div className="text-center p-5 m-5">
@@ -158,19 +205,20 @@ function ToDo() {
 
 export default ToDo;
 
-function TodoItem({ isActive, setActive, index, item, }) {
+function TodoItem({ isActive, onSelectTodo, todo, onDelete }) {
+  
   const active = isActive ? 'list-group-item-primary' : '';
-  return (
-    <div className={`list-group-item list-group-item-action todo-item p-2` + ' ' + active} onClick={() => setActive(index)}>
+ return (
+   <div className={`list-group-item list-group-item-action todo-item p-2` + ' ' + active} onClick={() => onSelectTodo(todo.id)}>
       <Row>
         <Col xs={12} sm={12} md={12} lg={12} className="title">
-          <h5>{item.title}</h5>
+          <h5>{todo.title}</h5>
         </Col>
         <Col xs={12} sm={12} md={12} lg={12}>
           <Row>
             <Col xs={12} sm={12} md={12} lg={12} className="sub-title d-flex justify-content-between">
-              <span>Date & Time will be here...</span>
-              <a href="#" onClick={e => e.preventDefault()}><i className="fa fa-trash" aria-hidden="true"></i></a>
+              <span>{moment(todo.created).format('DD MMM, YYYY')} {moment(todo.created).format('HH:mm a')}</span>
+              <a href="#" ><i className="fa fa-trash" aria-hidden="true" onClick={() => onDelete(todo.id)} ></i></a>
             </Col>
           </Row>
         </Col>

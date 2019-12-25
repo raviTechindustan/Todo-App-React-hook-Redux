@@ -79,3 +79,27 @@ body {
 .toolbar-btn {
   display: flex;
 }
+
+.custom-editor-buttons {
+  background-color: #eeeeee;
+  div {
+    &:hover {
+      background-color: #dedede;   
+    }
+    button {
+      border: 0px;
+      background-color: transparent;
+      svg {
+        height: 16px;
+        width: 16px;
+      }
+    }
+  }
+}
+
+.DraftEditor-root {
+  .DraftEditor-editorContainer {
+    padding: 8px;
+    font-size: 14px;
+  }
+}

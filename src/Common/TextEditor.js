@@ -15,13 +15,20 @@ import {
 } from 'draft-js';
 import createToolbarPlugin, { Separator } from 'draft-js-static-toolbar-plugin';
 
-function TextEditor({ onChange, editorState, setEditorState }) {
+function TextEditor({ onChange, editorState, readOnly }) {
   const staticToolbarPlugin = createToolbarPlugin();
   const { Toolbar } = staticToolbarPlugin;
   const plugins = [staticToolbarPlugin];
   return (
-    <>
-      <Toolbar>
+    <div className="border rounded">
+      <Editor        
+        editorState={editorState}
+        onChange={onChange}
+        plugins={plugins}
+        readOnly={readOnly}
+        className="custom-editor"
+      />
+      {!readOnly ? <Toolbar>
         {
           (props) => {
             const externalProps = {
@@ -30,7 +37,7 @@ function TextEditor({ onChange, editorState, setEditorState }) {
               setEditorState: (state) => onChange(state)
             }
             return (
-              <div className="toolbar-btn">
+              <div className="toolbar-btn custom-editor-buttons border-top">
                 <BoldButton {...externalProps} />
                 <ItalicButton {...externalProps} />
                 <UnderlineButton {...externalProps} />
@@ -44,14 +51,8 @@ function TextEditor({ onChange, editorState, setEditorState }) {
             )
           }
         }
-      </Toolbar>
-      <Editor
-        placeholder="Write here..."
-        editorState={editorState}
-        onChange={onChange}
-        plugins={plugins}
-      />
-    </>
+      </Toolbar> : null}
+    </div>
   )
 }
 
