@@ -15,10 +15,10 @@ function Routers() {
     <div>
       <Router>
         <Switch>
-          <Route exact path="/" component={NewTodo} />
+          <Route exact path="/" component={Login} />
           {/* <Route exact path="/" component={Todo} /> */}
-          <Route path="/Signup" component={Signup} />
-          <Route path="/Login" component={Login} />
+          <Route exact path="/Signup" component={Signup} />
+          <Route exact path="/NewTodo" component={NewTodo} />
         </Switch>
       </Router>
      

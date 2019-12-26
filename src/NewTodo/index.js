@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useRef  } from 'react';
 import { Container, Row, Col, Button, Form ,Modal} from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux'
 import { createTodo, updateTodo, deleteTodo } from '../redux/actions'
@@ -8,9 +8,11 @@ import { stateFromHTML } from 'draft-js-import-html';
 import TextEditor from '../Common/TextEditor'
 import { EditorState } from 'draft-js';
 
+//import { sortBy } from 'underscore'
 function getTodoToDisplay(state) {
   const todos = state.todoReducer.todos || [];
-  const reversedTodos = todos.reverse()
+  const reversedTodos = todos.reverse(todos.id) 
+ // var sortedObjs = _.sortBy( todos, 'id' );
   return {
     todos,
     reversedTodos
@@ -19,17 +21,14 @@ function getTodoToDisplay(state) {
 
 function ToDo() {
   const { todos, reversedTodos } = useSelector(getTodoToDisplay);
-
   const dispatch = useDispatch()
   const [active, setActive] = useState(null)
   const [editorState, setEditorState] = React.useState(EditorState.createEmpty());
   const [editable, setEditable] = useState(false);
   const [todo, setTodo] = useState({});
   const [show, setShowAlreadyEdited] = useState(false);
-
   const handleClose = () => setShowAlreadyEdited(false);
-  const handleShow = () => setShowAlreadyEdited(true);
-
+  //const textInput = useRef();
   function saveEditorContent(editorState) {    
     setTodo({
       ...todo,
@@ -66,8 +65,10 @@ function ToDo() {
   }
 
   function addTodo() {
+    //textInput.current.focus();
      if (editable) {
        setShowAlreadyEdited(true);
+       return
     }
     const newTodo = {
       id: moment().valueOf(),
@@ -119,6 +120,8 @@ function ToDo() {
     setEditorState(editorState);
   }
 
+
+
   return (
     <Container fluid>
       <Row>
@@ -133,7 +136,7 @@ function ToDo() {
                     className="mr-2"
                     size="sm"
                   />
-                  <Button variant="outline-primary" size="sm" onClick={addTodo}>Add</Button>
+                  <Button variant="outline-primary" size="sm" onClick={addTodo} >Add</Button>
                   {show ? <div>
                   
 
@@ -179,6 +182,7 @@ function ToDo() {
                     size="sm"
                     value={todo.title}
                     disabled={!editable}
+                    // ref={textInput}
                   />
                   {editable ? <Button className="mr-2" variant="outline-success" size="sm" onClick={onSave}>Save</Button>
                     : <Button className="mr-2" variant="outline-success" size="sm" onClick={onEdit}>Edit</Button>}
