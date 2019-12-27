@@ -8,27 +8,41 @@ import { stateFromHTML } from 'draft-js-import-html';
 import TextEditor from '../Common/TextEditor'
 import { EditorState } from 'draft-js';
 
-//import { sortBy } from 'underscore'
-function getTodoToDisplay(state) {
-  const todos = state.todoReducer.todos || [];
-  const reversedTodos = todos.reverse(todos.id) 
- // var sortedObjs = _.sortBy( todos, 'id' );
-  return {
-    todos,
-    reversedTodos
+function getTodoToDisplay({ search = '' }) {
+  return state => {
+    const todos = state.todoReducer.todos || [];
+    let reversedTodos = todos.sort(compare);
+    reversedTodos = search && typeof search === 'string' && reversedTodos && reversedTodos.length ? reversedTodos.filter(item => item.title.toUpperCase().includes(search.toUpperCase())) : reversedTodos;
+    return {
+      todos,
+      reversedTodos,
+    }
   }
 }
 
+function compare(a, b) {
+  let comparison = 0;
+  if (a.id < b.id) {
+    comparison = 1;
+  } else if (a.id > b.id) {
+    comparison = -1;
+  }
+  return comparison;
+}
+
+
 function ToDo() {
-  const { todos, reversedTodos } = useSelector(getTodoToDisplay);
   const dispatch = useDispatch()
   const [active, setActive] = useState(null)
   const [editorState, setEditorState] = React.useState(EditorState.createEmpty());
   const [editable, setEditable] = useState(false);
   const [todo, setTodo] = useState({});
   const [show, setShowAlreadyEdited] = useState(false);
+  const [search, setsearch] = useState('');
+  const { todos, reversedTodos } = useSelector(getTodoToDisplay(search));
   const handleClose = () => setShowAlreadyEdited(false);
-  //const textInput = useRef();
+  let textInput = React.useRef();
+
   function saveEditorContent(editorState) {    
     setTodo({
       ...todo,
@@ -65,7 +79,6 @@ function ToDo() {
   }
 
   function addTodo() {
-    //textInput.current.focus();
      if (editable) {
        setShowAlreadyEdited(true);
        return
@@ -81,6 +94,9 @@ function ToDo() {
     setTodo(newTodo);
     setEditorState(EditorState.createEmpty())
     setEditable(true);
+    setTimeout(() => {
+      textInput.current.focus();
+    }, 0)
   }
 
   function onSave() {
@@ -111,7 +127,6 @@ function ToDo() {
     if (todoId == active) {
       return
     }
-
     setActive(todoId);
     const selectedtodo = todos.find(todo => todo.id == todoId) || {};
     setTodo(selectedtodo);
@@ -120,7 +135,14 @@ function ToDo() {
     setEditorState(editorState);
   }
 
-
+  function onSearchChange(e) {
+    const {name , value } = e.target
+    setsearch({
+      ...search,
+      [name]:value
+    })
+    }
+  
 
   return (
     <Container fluid>
@@ -135,6 +157,7 @@ function ToDo() {
                     placeholder="Search..."
                     className="mr-2"
                     size="sm"
+                    onChange={(e)=>onSearchChange(e)}
                   />
                   <Button variant="outline-primary" size="sm" onClick={addTodo} >Add</Button>
                   {show ? <div>
@@ -182,7 +205,7 @@ function ToDo() {
                     size="sm"
                     value={todo.title}
                     disabled={!editable}
-                    // ref={textInput}
+                    ref={textInput}
                   />
                   {editable ? <Button className="mr-2" variant="outline-success" size="sm" onClick={onSave}>Save</Button>
                     : <Button className="mr-2" variant="outline-success" size="sm" onClick={onEdit}>Edit</Button>}
@@ -222,7 +245,7 @@ function TodoItem({ isActive, onSelectTodo, todo, onDelete }) {
           <Row>
             <Col xs={12} sm={12} md={12} lg={12} className="sub-title d-flex justify-content-between">
               <span>{moment(todo.created).format('DD MMM, YYYY')} {moment(todo.created).format('HH:mm a')}</span>
-              <a href="#" ><i className="fa fa-trash" aria-hidden="true" onClick={() => onDelete(todo.id)} ></i></a>
+             <a className="p-0 px-1" href="#" onClick={(e) => { e.stopPropagation(); onDelete(todo.id) }}><i className="fa fa-trash" aria-hidden="true"></i></a>
             </Col>
           </Row>
         </Col>

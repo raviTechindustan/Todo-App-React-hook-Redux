@@ -32,3 +32,12 @@ export function loadInitials(data) {
     })
   }
 }
+
+export function userRegister(data) {
+  return (dispatch) => {
+    dispatch({
+      type:'USER_REGISTER',
+      data
+    })
+  }
+}
