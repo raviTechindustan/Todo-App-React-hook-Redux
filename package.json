@@ -16,6 +16,8 @@
     "draft-js-inline-toolbar-plugin": "^3.0.1",
     "draft-js-plugins-editor": "^3.0.0",
     "draft-js-static-toolbar-plugin": "^3.0.1",
+    "is_js": "^0.9.0",
+    "lodash": "^4.17.15",
     "moment": "^2.24.0",
     "react": "^16.12.0",
     "react-bootstrap": "^1.0.0-beta.16",

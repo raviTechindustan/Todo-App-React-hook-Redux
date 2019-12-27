@@ -3,9 +3,12 @@ import { Row, Col, Container, Form, Button } from 'react-bootstrap'
 import { Link } from "react-router-dom";
 import { useDispatch } from 'react-redux'
 import { userRegister  } from './redux/actions'
+import {validator} from './validation'
+ 
 
 function Signup () {
   const [users,setUsers] = useState({email:'',password:'', confirmPassword:''})
+  const [error,setError] = useState({})
   const dispatch = useDispatch();
   function onhandleChange (e) {
     const {name,value} = e.target
@@ -18,9 +21,20 @@ function Signup () {
   function onSubmit (e) {
     e.preventDefault();
     console.log("inside onSubmit function")
+    if (isValid(users)) {
     dispatch(userRegister(users));
+    }
+  }
+
+  function isValid (data) {
+    let errors,isValid = validator(data)
+    setError(errors)
+    console.log(error)
+    return isValid
+
   }
   
+ 
   return(
     <div>
       <Container fluid>
