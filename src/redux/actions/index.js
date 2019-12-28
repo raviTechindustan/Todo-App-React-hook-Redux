@@ -33,11 +33,36 @@ export function loadInitials(data) {
   }
 }
 
+
+export function loadInitialsForAuth() {
+  return (dispatch) => {
+    dispatch({
+      type: 'INITIALIZE_AUTH'
+    })
+  }
+}
 export function userRegister(data) {
   return (dispatch) => {
     dispatch({
-      type:'USER_REGISTER',
+      type:'USER_REGISTERATION_IS_SUCCESSFUL',
       data
+    })
+  }
+}
+
+export function loginUserRecord(data) {
+  return (dispatch) => {
+    dispatch ({
+      type:'LOGIN_USER_DATA',
+      data
+    })
+  }
+}
+
+export function userLogout() {
+  return (dispatch) => {
+    dispatch ({
+      type: 'LOGOUT'
     })
   }
 }

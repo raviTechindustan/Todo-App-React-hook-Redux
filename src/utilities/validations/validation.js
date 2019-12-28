@@ -4,7 +4,7 @@ import {isEmpty} from 'lodash'
 
  export function validator(data) {
     let errors = {}
-
+    console.log("inside validator")
     if(is.empty(data.email)) {
         errors.email= "email is required"
     }

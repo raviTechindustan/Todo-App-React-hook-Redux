@@ -1,12 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Row, Col, Container, Form, Button } from 'react-bootstrap'
 import { Link } from "react-router-dom";
 import { useHistory } from 'react-router';
-import {  useSelector } from 'react-redux'
+import {  useSelector,useDispatch } from 'react-redux'
+import { login, initialize } from '../actions';
+import { toast } from 'react-toastify';
+
 function Login() {
   
   const [user,setuser] = useState({email:'',password:''});
   const history = useHistory();
+  const dispatch =  useDispatch();
+  const registeredUsers = useSelector(state => state.auth.registeredUsers);
+
+  useEffect(() => {
+    dispatch(initialize());
+  }, [])
 
   function onSetUser(e) {
     const {name , value} = e.target
@@ -16,29 +25,17 @@ function Login() {
     })
   }
 
-  const users = useSelector(state => state.todoReducer.users)
-  console.log(users,"users")
-
   function onsubmit(e) {
     e.preventDefault();
-
-   let found=  users && users.length ? users.find( a => (a.email == user.email) && (a.password == user.password)) : null
-    console.log(found,"found")
-    if(found) {
-      history.push("/NewTodo")
+    let currentUser = registeredUsers && registeredUsers.length ? registeredUsers.find(item => item.email === user.email && item.password === user.password) : {};
+    if (currentUser && currentUser.email) {
+      dispatch(login(currentUser))
+      toast.success("Logged in successfully!");
+      history.push("/NewTodo");
+    } else {
+      toast.error("Unable to find registered email");
     }
-    else alert("please enter valid data")
   }
-
-
-
-
-  //   if((user.email === 'test@test.com')  && (user.password === 'test'))
-  //   {
-  //     history.push("/NewTodo");
-  //   } 
-  // }
- 
 
   return (
     <Container fluid>
@@ -57,10 +54,12 @@ function Login() {
                   <Form.Label>Password</Form.Label>
                   <Form.Control type="password" placeholder="Password" name="password" onChange={(e) => onSetUser(e)} />
                 </Form.Group>
-                <Button variant="primary" type="submit" className="Login" >
-                  Submit
-                </Button>{'  '}
-                <Link to='/Signup'>Signup</Link>
+                <div className="d-flex justify-content-between align-items-center">
+                  <Button variant="primary" type="submit" className="Login mr-3">
+                    Submit
+                  </Button>
+                  <Link to='/Signup'>New Member?</Link>
+                </div>
               </Form>
             </div>
           </div>

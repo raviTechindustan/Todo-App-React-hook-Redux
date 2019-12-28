@@ -106,3 +106,16 @@ body {
     font-size: 14px;
   }
 }
+
+.sticky-footer-left {
+  position: fixed;
+  bottom: 0;
+  button {
+    border-radius: 50%;
+    height: 50px;
+    width: 50px;
+    background: #fff;
+    color: #444;
+    border: 2px solid #555;
+  }
+}

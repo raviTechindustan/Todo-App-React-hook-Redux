@@ -1,9 +1,9 @@
 
-import { saveToLocalStorage, getFromLocalStorage } from '../../utils';
+import { saveToLocalStorage, getFromLocalStorage, } from '../../utils';
 const initialState = {
   todo: {},
   todos: [],
-  users: []
+  
 };
 
 export default function (state = { ...initialState }, action) {
@@ -29,16 +29,10 @@ export default function (state = { ...initialState }, action) {
       return { ...state, todos: updatedTodos }
     }
     case 'LOAD_INITIAL_DATA_FROM_LOCAL_STORAGE': {
-      const initialState = getFromLocalStorage()
+      const initialState = getFromLocalStorage();
       return initialState
     }
-    case 'USER_REGISTER': {
-      let users = [...state.users || [] ]
-      users.push(action.data);
-      saveToLocalStorage({ ...state, users})
-      return { ...state, users}
-    }
-      default:
-        return state
+    default:
+      return state
   }
 }

@@ -1,12 +1,16 @@
-import React, { useState,useRef  } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Container, Row, Col, Button, Form ,Modal} from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux'
-import { createTodo, updateTodo, deleteTodo } from '../redux/actions'
+import { createTodo, updateTodo, deleteTodo, userLogout } from '../redux/actions'
 import moment from 'moment';
 import { stateToHTML } from 'draft-js-export-html';
 import { stateFromHTML } from 'draft-js-import-html';
 import TextEditor from '../Common/TextEditor'
 import { EditorState } from 'draft-js';
+import { useHistory} from 'react-router';
+import { logout, initialize } from '../Auth/actions';
+import { toast } from 'react-toastify';
+import {DropdownButton, Dropdown } from 'react-bootstrap';
 
 function getTodoToDisplay({ search = '' }) {
   return state => {
@@ -19,6 +23,7 @@ function getTodoToDisplay({ search = '' }) {
     }
   }
 }
+
 
 function compare(a, b) {
   let comparison = 0;
@@ -33,13 +38,15 @@ function compare(a, b) {
 
 function ToDo() {
   const dispatch = useDispatch()
+  const history  = useHistory();
   const [active, setActive] = useState(null)
   const [editorState, setEditorState] = React.useState(EditorState.createEmpty());
   const [editable, setEditable] = useState(false);
   const [todo, setTodo] = useState({});
   const [show, setShowAlreadyEdited] = useState(false);
   const [search, setsearch] = useState('');
-  const { todos, reversedTodos } = useSelector(getTodoToDisplay(search));
+  const { todos, reversedTodos,} = useSelector(getTodoToDisplay(search));
+ 
   const handleClose = () => setShowAlreadyEdited(false);
   let textInput = React.useRef();
 
@@ -49,6 +56,10 @@ function ToDo() {
       description: editorState
     })
   }
+
+  useEffect(() => {
+    dispatch(initialize());
+  }, [])
 
   function onChange(editorState) {
     setEditorState(editorState);
@@ -101,7 +112,9 @@ function ToDo() {
 
   function onSave() {
     if(todo && !todo.title) {
-      alert("title is required")
+      toast.error("PLEASE ENTER TITLE", {
+        position: toast.POSITION.TOP_CENTER
+      });
       return
     }
     if (todo && !!todo.isNotSaved) {
@@ -141,9 +154,8 @@ function ToDo() {
       ...search,
       [name]:value
     })
-    }
+  }
   
-
   return (
     <Container fluid>
       <Row>
@@ -165,14 +177,13 @@ function ToDo() {
 
                   <Modal show={show} onHide={handleClose}>
                     <Modal.Header closeButton>
-                        <Modal.Title><b><p>A Todo is Already Being Edited</p></b></Modal.Title>
+                        <Modal.Title><b><p>A TODO IS ALREAY BEING EDITED</p></b></Modal.Title>
                     </Modal.Header>
                    
                     <Modal.Footer>
-                      <Button variant="secondary" onClick={handleClose}>
+                        <Button variant="outline-danger" size="sm"  onClick={handleClose}>
                         Close
-                  </Button>
-                      
+                        </Button>
                     </Modal.Footer>
                   </Modal> </div> : null }
                 </Col>
@@ -191,8 +202,14 @@ function ToDo() {
                     }
                   </div>
                 </Col>
+                <div className="sticky-footer-left">
+                  <Col xs={12} sm={12} md={12} lg={12}>
+                    <UserProfile />
+                  </Col>
+                </div>
               </Row>
             </Col>
+            
             <Col xs={12} sm={8} md={9} lg={9}>
               {todo && todo.id ? <Row>
                 <Col xs={12} sm={12} md={12} lg={12} className="py-3 d-flex">
@@ -221,7 +238,8 @@ function ToDo() {
                 </Col>
               </Row> : <div className="text-center p-5 m-5">
                   No Todo found!
-              </div>}
+              </div>
+              }
             </Col>
           </Row>
         </Col>
@@ -259,4 +277,32 @@ function renderText(text, length = 30) {
     return text.substring(0, 30) + '...';
   }
   return text
+}
+
+function UserProfile() {
+  const user = useSelector(state => state.auth.user);
+  const dispatch = useDispatch();
+  const history = useHistory();
+
+  function Logout() {
+    dispatch(logout());
+    toast.success("Logged out successfully!")
+    history.push('/')
+  }
+  
+  return (
+    <div className="pb-3">
+      <DropdownButton
+        drop="up"
+        variant="success"
+        title={user && user.email && user.email[0].toUpperCase() || 'U'}
+        id={`dropdown-button-drop-up`}
+        size="sm"
+      >
+        <Dropdown.Item>{user.email}</Dropdown.Item>
+        <Dropdown.Divider />
+        <Dropdown.Item onClick={Logout}>logout</Dropdown.Item>
+      </DropdownButton>
+    </div>
+  )
 }
